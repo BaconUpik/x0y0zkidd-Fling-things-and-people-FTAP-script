@@ -174,7 +174,7 @@ uis.InputBegan:Connect(function(i,g)
 	if i.KeyCode == Enum.KeyCode.Q then
 		if bools.fling then
 			if work.GrabParts then
-				work.GrabParts.GrabPart.Velocity = hrp.CFrame.LookVector * 800 + Vector3.new(0,300,0)
+				work.GrabParts.GrabPart.Velocity = camera.CFrame.LookVector * 800
 				work.GrabParts:Destroy()
 
 				virtual:SendMouseButtonEvent(1, 1, 0, true, nil, 0)
