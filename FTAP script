@@ -197,7 +197,7 @@ uis.InputBegan:Connect(function(i,g)
 	elseif i.KeyCode == Enum.KeyCode.C then
 		if bools.teleport then
 			if work.GrabParts then
-				work.GrabParts.GrabPart.CFrame = CFrame.new(hrp.CFrame.LookVector * 600 + Vector3.new(0,100,0))
+				work.GrabParts.GrabPart.CFrame = CFrame.new(camera.CFrame.LookVector * 1500)
 			end
 		end
 	end
