@@ -136,13 +136,13 @@ btn2.MouseButton1Click:Connect(function()
 		notify("Command: freeze","Press Z to freeze object while holding.",7)
 	elseif value == ("teleport"):lower() or value == ("tp"):lower() then
 		bools.teleport = true
-		notify("Command: teleport","Press C to freeze object while holding.",7)
+		notify("Command: teleport","Press C to teleport object far away while holding.",7)
 	elseif value == ("fling"):lower() then
 		bools.fling = true
-		notify("Command: fling","Press Q to freeze object while holding.",7)
+		notify("Command: fling","Press Q to fling object far away while holding.",7)
 	elseif value == ("bring") then
 		bools.bring = true
-		notify("Command: bring","Press X to freeze object while holding.",7)
+		notify("Command: bring","Press X to bring object to you while holding.",7)
 	end
 end)
 
