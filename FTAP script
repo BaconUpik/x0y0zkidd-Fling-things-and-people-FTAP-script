@@ -69,9 +69,24 @@ label.TextSize          = 14
 local btn2    = Instance.new("TextButton")
 btn2.Parent   = frame
 btn2.Size     = UDim2.new(0,95,0,35)
-btn2.Position = UDim2.new(0,80,0,200)
-btn2.Text     = "Execute\n(Hold Player)"
+btn2.Position = UDim2.new(0,30,0,200)
+btn2.Text     = "Makes"
 btn2.TextSize = 12
+
+local btn3    = Instance.new("TextButton")
+btn3.Parent   = frame
+btn3.Size     = UDim2.new(0,80,0,35)
+btn3.Position = UDim2.new(0,150,0,200)
+btn3.Text     = "Stp"
+btn3.TextSize = 12
+
+function notify(title, text, duration)
+	starterGui:SetCore("SendNotification",{
+		Title = title,
+		Text = text,
+		Duration = duration,
+	})
+end
 
 local dragging = false
 local dragStart
@@ -82,7 +97,7 @@ frame.InputBegan:Connect(function(input)
 		dragging = true
 		dragStart = input.Position
 		startPos = frame.Position
-		
+
 		input.Changed:Connect(function()
 			if input.UserInputState == Enum.UserInputState.End then
 				dragging = false
@@ -102,41 +117,96 @@ btn.MouseButton1Click:Connect(function()
 	screen:Destroy()
 end)
 
+local bools = {
+	fling = false,
+	bring = false,
+	teleport = false,
+	freeze = false
+}
+
 btn2.MouseButton1Click:Connect(function()
-    local value = nil
-    if text.Text ~= "" then
-        value = text.Text:lower()
-    end
-    if not value then return end
+	local value = nil
+	if text.Text ~= "" then
+		value = text.Text:lower()
+	end
+	if not value then return end
 
-    if value == ("freeze"):lower() then
-        if work.GrabParts then
-            work.GrabParts.GrabPart.Anchored = true
-        end
-    elseif value == ("teleport"):lower() or value == ("tp"):lower() then
-        if work.GrabParts then
-            work.GrabParts.GrabPart.CFrame = CFrame.new(hrp.CFrame.LookVector * 600 + Vector3.new(0,100,0))
-        end
-    elseif value == ("fling"):lower() then
-        if work.GrabParts then
-            work.GrabParts.GrabPart.Velocity = hrp.CFrame.LookVector * 800 + Vector3.new(0,300,0)
-            work.GrabParts:Destroy()
+	if value == ("freeze"):lower() then
+		bools.freeze = true
+		notify("Command: freeze","Press Z to freeze object while holding.",7)
+	elseif value == ("teleport"):lower() or value == ("tp"):lower() then
+		bools.teleport = true
+		notify("Command: teleport","Press C to freeze object while holding.",7)
+	elseif value == ("fling"):lower() then
+		bools.fling = true
+		notify("Command: fling","Press Q to freeze object while holding.",7)
+	elseif value == ("bring") then
+		bools.bring = true
+		notify("Command: bring","Press X to freeze object while holding.",7)
+	end
+end)
 
-            virtual:SendMouseButtonEvent(1, 1, 0, true, nil, 0)
+btn3.MouseButton1Click:Connect(function()
+	local value = nil
+	if text.Text ~= "" then
+		value = text.Text:lower()
+	end
+	if not value then return end
 
-            virtual:SendMouseButtonEvent(1, 1, 0, false, nil, 0)
-        end
-    elseif value == ("bring") then
-        if work.GrabParts then
-            work.GrabParts.GrabPart.CFrame = hrp.CFrame
-        end
-    end
+	if value == ("freeze"):lower() then
+		bools.freeze = false
+		notify("Stopped command:","freeze",7)
+	elseif value == ("teleport"):lower() or value == ("tp"):lower() then
+		bools.teleport = false
+		notify("Stopped command:","teleport",7)
+	elseif value == ("fling"):lower() then
+		bools.fling = false
+		notify("Stopped command:","fling",7)
+	elseif value == ("bring") then
+		bools.bring = false
+		notify("Stopped command:","bring",7)
+	end
+end)
+
+uis.InputBegan:Connect(function(i,g)
+	if g then return end
+	
+	if i.KeyCode == Enum.KeyCode.Q then
+		if bools.fling then
+			if work.GrabParts then
+				work.GrabParts.GrabPart.Velocity = hrp.CFrame.LookVector * 800 + Vector3.new(0,300,0)
+				work.GrabParts:Destroy()
+
+				virtual:SendMouseButtonEvent(1, 1, 0, true, nil, 0)
+
+				virtual:SendMouseButtonEvent(1, 1, 0, false, nil, 0)
+			end
+		end
+	elseif i.KeyCode == Enum.KeyCode.Z then
+		if bools.freeze then
+			if work.GrabParts then
+				work.GrabParts.GrabPart.Anchored = true
+			end
+		end
+	elseif i.KeyCode == Enum.KeyCode.X then
+		if bools.bring then
+			if work.GrabParts then
+				work.GrabParts.GrabPart.CFrame = hrp.CFrame
+			end
+		end
+	elseif i.KeyCode == Enum.KeyCode.C then
+		if bools.teleport then
+			if work.GrabParts then
+				work.GrabParts.GrabPart.CFrame = CFrame.new(hrp.CFrame.LookVector * 600 + Vector3.new(0,100,0))
+			end
+		end
+	end
 end)
 
 local suc, err = pcall(function()
-    screen.Parent = game:GetService("CoreGui")
+	screen.Parent = game:GetService("CoreGui")
 end)
 
 if not suc then
-    print("Cannot set gui parent to 'CoreGui' ( We tried ).")
+	print("Cannot set gui parent to 'CoreGui' ( We tried ).")
 end
