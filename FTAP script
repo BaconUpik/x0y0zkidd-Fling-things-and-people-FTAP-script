@@ -1,0 +1,133 @@
+local plr = game:GetService("Players")
+local me  = plr.LocalPlayer
+local char = me.Character or me.CharacterAdded:wait()
+local hum = char:FindFirstChildOfClass("Humanoid")
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+local work = game:GetService("Workspace")
+local run = game:GetService("RunService")
+local uis = game:GetService("UserInputService")
+local rep = game:GetService("ReplicatedStorage")
+local textChat = game:GetService("TextChatService")
+local guiService = game:GetService("GuiService")
+local starterGui = game:GetService("StarterGui")
+local light = game:GetService("Lighting")
+local tpService = game:GetService("TeleportService")
+
+local mouse = me:GetMouse()
+local camera = work.CurrentCamera
+
+local function update()
+	char = me.Character
+	hum = char:WaitForChild("Humanoid")
+	hrp = char:WaitForChild("HumanoidRootPart")
+end
+
+me.CharacterAdded:Connect(update)
+
+if me.Character then
+	update()
+end
+
+local screen  = Instance.new("ScreenGui")
+screen.Parent = me.PlayerGui
+screen.Name   = "Gui"
+screen.ResetOnSpawn = false
+screen.IgnoreGuiInset = true
+
+local frame    = Instance.new("Frame")
+frame.Parent   = screen
+frame.Size     = UDim2.new(0,250,0,250)
+frame.Position = UDim2.new(0,15,0,380)
+frame.Active     = true
+
+local btn    = Instance.new("TextButton")
+btn.Parent   = frame
+btn.Size     = UDim2.new(0,25,0,25)
+btn.Position = UDim2.new(0,225,0,0)
+btn.Text     = "X"
+btn.TextSize = 12
+
+local text             = Instance.new("TextBox")
+text.Parent            = frame
+text.Size              = UDim2.new(0,80,0,35)
+text.Position          = UDim2.new(0,90,0,140)
+text.Text              = ""
+text.PlaceholderText   = "Command"
+text.PlaceholderColor3 = Color3.fromRGB(70,70,70)
+text.TextSize          = 12
+
+local label             = Instance.new("TextLabel")
+label.Parent            = frame
+label.Size              = UDim2.new(0,100,0,15)
+label.Position          = UDim2.new(0,80,0,65)
+label.BorderSizePixel = 0
+label.Text              = "Fling things and people\ncmds:\n|        fling       |\n| teleport ; tp |\n|      freeze     |"
+label.TextSize          = 14
+
+local btn2    = Instance.new("TextButton")
+btn2.Parent   = frame
+btn2.Size     = UDim2.new(0,95,0,35)
+btn2.Position = UDim2.new(0,80,0,200)
+btn2.Text     = "Execute\n(Hold Player)"
+btn2.TextSize = 12
+
+local dragging = false
+local dragStart
+local startPos
+
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+uis.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		frame.Position = startPos + UDim2.new(0,delta.X,0,delta.Y)
+	end
+end)
+
+btn.MouseButton1Click:Connect(function()
+	screen:Destroy()
+end)
+
+btn2.MouseButton1Click:Connect(function()
+    local value = nil
+    if text.Text ~= "" then
+        value = text.Text:lower()
+    end
+    if not value then return end
+
+    if value == ("freeze"):lower() then
+        if work.GrabParts then
+            work.GrabParts.GrabPart.Anchored = true
+        end
+    elseif value == ("teleport"):lower() or value == ("tp"):lower() then
+        if work.GrabParts then
+            work.GrabParts.GrabPart.CFrame = CFrame.new(hrp.CFrame.LookVector * 600 + Vector3.new(0,100,0))
+        end
+    elseif value == ("fling"):lower() then
+        if work.GrabParts then
+            work.GrabParts.GrabPart.Velocity = hrp.CFrame.LookVector * 600 + Vector3.new(0,300,0)
+            work.GrabParts:Destroy()
+        end
+    end
+end)
+
+local suc, err = pcall(function()
+    screen.Parent = game:GetService("CoreGui")
+end)
+
+if not suc then
+    print("Cannot set gui parent to 'CoreGui' ( We tried ).")
+end
