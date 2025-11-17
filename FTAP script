@@ -131,9 +131,9 @@ btn2.MouseButton1Click:Connect(function()
 	end
 	if not value then return end
 
-	if value == ("freeze"):lower() then
+	if value == ("freeze"):lower() or value == ("unfreeze"):lower() then
 		bools.freeze = true
-		notify("Command: freeze","Press Z to freeze object while holding.",7)
+		notify("Command: freeze","Press Z to toggle object freeze while holding.",7)
 	elseif value == ("teleport"):lower() or value == ("tp"):lower() then
 		bools.teleport = true
 		notify("Command: teleport","Press C to teleport object far away while holding.",7)
@@ -153,9 +153,9 @@ btn3.MouseButton1Click:Connect(function()
 	end
 	if not value then return end
 
-	if value == ("freeze"):lower() then
+	if value == ("freeze"):lower() or value == ("unfreeze"):lower() then
 		bools.freeze = false
-		notify("Stopped command:","freeze",7)
+		notify("Stopped command:","freeze / unfreeze",7)
 	elseif value == ("teleport"):lower() or value == ("tp"):lower() then
 		bools.teleport = false
 		notify("Stopped command:","teleport",7)
@@ -185,7 +185,11 @@ uis.InputBegan:Connect(function(i,g)
 	elseif i.KeyCode == Enum.KeyCode.Z then
 		if bools.freeze then
 			if work.GrabParts then
-				work.GrabParts.GrabPart.Anchored = true
+				if work.GrabParts.GrabPart.Anchored == false then
+                    work.GrabParts.GrabPart.Anchored = true
+                else
+                    work.GrabParts.GrabPart.Anchored = false
+                end
 			end
 		end
 	elseif i.KeyCode == Enum.KeyCode.X then
