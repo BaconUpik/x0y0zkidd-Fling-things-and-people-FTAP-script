@@ -38,9 +38,26 @@ screen.IgnoreGuiInset = true
 
 local frame    = Instance.new("Frame")
 frame.Parent   = screen
-frame.Size     = UDim2.new(0,250,0,250)
+frame.Size     = UDim2.new(0,250,0,280)
 frame.Position = UDim2.new(0,15,0,380)
 frame.Active     = true
+
+local scroll = Instance.new("ScrollingFrame")
+scroll.Parent   = frame
+scroll.Size     = UDim2.new(0,145,0,125)
+scroll.Position = UDim2.new(0.225,0,0.2,0)
+scroll.BackgroundTransparency = 0
+scroll.ScrollBarThickness = 5
+scroll.AutomaticCanvasSize = Enum.AutomaticSize.XY
+scroll.ScrollingDirection = Enum.ScrollingDirection.XY
+scroll.Active = true
+
+local layout = Instance.new("UIListLayout")
+layout.Parent = scroll
+layout.Padding = UDim.new(0,5)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.VerticalAlignment = Enum.VerticalAlignment.Top
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 
 local btn    = Instance.new("TextButton")
 btn.Parent   = frame
@@ -52,33 +69,33 @@ btn.TextSize = 12
 local text             = Instance.new("TextBox")
 text.Parent            = frame
 text.Size              = UDim2.new(0,80,0,35)
-text.Position          = UDim2.new(0,90,0,140)
+text.Position          = UDim2.new(0,90,0,190)
 text.Text              = ""
 text.PlaceholderText   = "Command"
 text.PlaceholderColor3 = Color3.fromRGB(70,70,70)
 text.TextSize          = 12
 
-local label             = Instance.new("TextLabel")
-label.Parent            = frame
-label.Size              = UDim2.new(0,100,0,15)
-label.Position          = UDim2.new(0,80,0,65)
-label.BorderSizePixel = 0
-label.Text              = "Fling things and people\ncmds:\n|        fling       |\n|       bring      |\n| teleport ; tp |\n|      freeze     |"
-label.TextSize          = 14
-
 local btn2    = Instance.new("TextButton")
 btn2.Parent   = frame
-btn2.Size     = UDim2.new(0,95,0,35)
-btn2.Position = UDim2.new(0,30,0,200)
+btn2.Size     = UDim2.new(0,80,0,35)
+btn2.Position = UDim2.new(0,30,0,230)
 btn2.Text     = "Makes"
 btn2.TextSize = 12
 
 local btn3    = Instance.new("TextButton")
 btn3.Parent   = frame
 btn3.Size     = UDim2.new(0,80,0,35)
-btn3.Position = UDim2.new(0,150,0,200)
+btn3.Position = UDim2.new(0,150,0,230)
 btn3.Text     = "Stp"
 btn3.TextSize = 12
+
+local label             = Instance.new("TextLabel")
+label.Parent            = frame
+label.Size              = UDim2.new(0,100,0,15)
+label.Position          = UDim2.new(0,80,0,20)
+label.BorderSizePixel = 0
+label.Text              = "Fling things and people\ncmds:"
+label.TextSize          = 14
 
 function notify(title, text, duration)
 	starterGui:SetCore("SendNotification",{
@@ -86,6 +103,16 @@ function notify(title, text, duration)
 		Text = text,
 		Duration = duration,
 	})
+end
+
+function addCmd(name)
+	local label             = Instance.new("TextLabel")
+	label.Parent            = scroll
+	label.Size              = UDim2.new(0,100,0,15)
+	label.AutomaticSize     = Enum.AutomaticSize.XY
+	label.BorderSizePixel = 0
+	label.Text              = tostring(name)
+	label.TextSize          = 14
 end
 
 local dragging = false
@@ -116,6 +143,17 @@ end)
 btn.MouseButton1Click:Connect(function()
 	screen:Destroy()
 end)
+
+local cmds = {
+	" |       fling       | ",
+	" |       bring       | ",
+	" |   teleport ; tp   | ",
+	" | freeze / unfreeze | "
+}
+
+for i = 1,#cmds do
+	addCmd(cmds[i])
+end
 
 local bools = {
 	fling = false,
@@ -170,7 +208,7 @@ end)
 
 uis.InputBegan:Connect(function(i,g)
 	if g then return end
-	
+
 	if i.KeyCode == Enum.KeyCode.Q then
 		if bools.fling then
 			if work.GrabParts then
@@ -186,10 +224,10 @@ uis.InputBegan:Connect(function(i,g)
 		if bools.freeze then
 			if work.GrabParts then
 				if work.GrabParts.GrabPart.Anchored == false then
-                    work.GrabParts.GrabPart.Anchored = true
-                else
-                    work.GrabParts.GrabPart.Anchored = false
-                end
+					work.GrabParts.GrabPart.Anchored = true
+				else
+					work.GrabParts.GrabPart.Anchored = false
+				end
 			end
 		end
 	elseif i.KeyCode == Enum.KeyCode.X then
@@ -206,6 +244,8 @@ uis.InputBegan:Connect(function(i,g)
 		end
 	end
 end)
+
+if not game:GetService("CoreGui") then return end
 
 local suc, err = pcall(function()
 	screen.Parent = game:GetService("CoreGui")
