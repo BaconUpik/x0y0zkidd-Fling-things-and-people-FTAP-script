@@ -149,7 +149,7 @@ local cmds = {
 	" |       bring       | ",
 	" |   teleport ; tp   | ",
 	" | freeze / unfreeze | ",
-	" | hook / moveToHook | "
+	" |   hook <speed>    | "
 }
 
 for i = 1,#cmds do
@@ -164,7 +164,8 @@ local bools = {
 	hook = false,
 	
 	hookCon = nil,
-	hookToggle = false
+	hookToggle = false,
+	hookSpeed = 30
 }
 
 btn2.MouseButton1Click:Connect(function()
@@ -173,22 +174,27 @@ btn2.MouseButton1Click:Connect(function()
 		value = text.Text:lower()
 	end
 	if not value then return end
+	
+	local args = string.split(text.Text," ")
 
-	if value == ("freeze"):lower() or value == ("unfreeze"):lower() then
+	if args[1] and args[1] == ("freeze"):lower() or args[1] and args[1] == ("unfreeze"):lower() then
 		bools.freeze = true
 		notify("Command: freeze","Press Z to toggle object freeze while holding.",7)
-	elseif value == ("teleport"):lower() or value == ("tp"):lower() then
+	elseif args[1] and args[1] == ("teleport"):lower() or args[1] and args[1] == ("tp"):lower() then
 		bools.teleport = true
 		notify("Command: teleport","Press C to teleport object far away while holding.",7)
-	elseif value == ("fling"):lower() then
+	elseif args[1] and args[1] == ("fling"):lower() then
 		bools.fling = true
 		notify("Command: fling","Press Q to fling object far away while holding.",7)
-	elseif value == ("bring") then
+	elseif args[1] and args[1] == ("bring") then
 		bools.bring = true
 		notify("Command: bring","Press X to bring object to you while holding.",7)
-	elseif value == ("hook") or value == ("movetohook"):lower() then
+	elseif args[1] and args[1] == ("hook") or args[1] and args[1] == ("movetohook"):lower() then
 		bools.hook = true
 		notify("Command: hook","Press V to toggle move to hook.",7)
+		if tonumber(args[2]) then
+			bools.hookSpeed = tonumber(args[2])
+		end
 	end
 end)
 
@@ -198,20 +204,22 @@ btn3.MouseButton1Click:Connect(function()
 		value = text.Text:lower()
 	end
 	if not value then return end
+	
+	local args = string.split(text.Text," ")
 
-	if value == ("freeze"):lower() or value == ("unfreeze"):lower() then
+	if args[1] and args[1] == ("freeze"):lower() or args[1] and args[1] == ("unfreeze"):lower() then
 		bools.freeze = false
 		notify("Stopped command:","freeze / unfreeze",7)
-	elseif value == ("teleport"):lower() or value == ("tp"):lower() then
+	elseif args[1] and args[1] == ("teleport"):lower() or args[1] and args[1] == ("tp"):lower() then
 		bools.teleport = false
 		notify("Stopped command:","teleport",7)
-	elseif value == ("fling"):lower() then
+	elseif args[1] and args[1] == ("fling"):lower() then
 		bools.fling = false
 		notify("Stopped command:","fling",7)
-	elseif value == ("bring") then
+	elseif args[1] and args[1] == ("bring") then
 		bools.bring = false
 		notify("Stopped command:","bring",7)
-	elseif value == ("hook") or value == ("movetohook"):lower() then
+	elseif args[1] and args[1] == ("hook") or args[1] and args[1] == ("movetohook"):lower() then
 		bools.hook = false
 		notify("Stopped command:","hook",7)
 	end
@@ -264,17 +272,25 @@ uis.InputBegan:Connect(function(i,g)
 
 				bools.hookCon = run.Heartbeat:Connect(function()
 					if work:FindFirstChild("GrabParts") then
-						hrp.CFrame = CFrame.new(hrp.Position + (work.GrabParts.BeamPart.Position - hrp.Position).Unit * 30 * run.Heartbeat:Wait())
+						hrp.CFrame = CFrame.new(hrp.Position + (work.GrabParts.BeamPart.Position - hrp.Position).Unit * bools.hookSpeed * run.Heartbeat:Wait())
 					end
 				end)
 			else
 				bools.hookToggle = false
-
+				hrp.Velocity = Vector3.zero
 				if bools.hookCon then
 					bools.hookCon:Disconnect()
 					bools.hookCon = nil
 				end
 			end
+		end
+	end
+end)
+
+work.ChildRemoved:Connect(function(c)
+	if c.Name == "GrabParts" then
+		if bools.hookCon and bools.hook then
+			hrp.Velocity = Vector3.zero
 		end
 	end
 end)
